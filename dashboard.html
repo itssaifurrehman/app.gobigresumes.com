@@ -94,28 +94,29 @@
       </button>
     </div>
 
-    <div class="w-full overflow-x-auto bg-white border rounded-lg shadow-sm">
-      <table class="min-w-[1000px] w-full text-sm">
-        <thead class="bg-[var(--secondary)] text-white uppercase text-xs tracking-wider">
-          <tr>
-            <th class="px-3 py-2 text-center">No.</th>
-            <th class="px-3 py-2 text-center">Company</th>
-            <th class="px-3 py-2 text-center">Title</th>
-            <th class="px-3 py-2 text-center">No. of Applicants</th>
-            <th class="px-3 py-2 text-center">Job Link</th>
-            <th class="px-3 py-2 text-center">Hiring Manager</th>
-            <th class="px-3 py-2 text-center">Status</th>
-            <th class="px-3 py-2 text-center">Application Date</th>
-            <th class="px-3 py-2 text-center">Response Date</th>
-            <th class="px-3 py-2 text-center">When to Follow Up</th>
-            <th class="px-3 py-2 text-center">Follow-Up Status</th>
-            <th class="px-3 py-2 text-center">Referral</th>
-            <th class="px-3 py-2 text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
-      </table>
-    </div>
+    <div class="w-full overflow-auto max-h-[80vh] bg-white border rounded-lg shadow-sm">
+  <table class="min-w-[1000px] w-full text-sm">
+    <thead class="bg-[var(--secondary)] text-white uppercase text-xs tracking-wider sticky top-0 z-10">
+      <tr>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">No.</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Company</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Title</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">No. of Applicants</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Job Link</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Hiring Manager</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Status</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Application Date</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Response Date</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">When to Follow Up</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Follow-Up Status</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Referral</th>
+        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Action</th>
+      </tr>
+    </thead>
+    <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
+  </table>
+</div>
+
   </main>
 
   <div id="delete-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
