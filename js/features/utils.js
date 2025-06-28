@@ -89,27 +89,23 @@ export function renderJobRow(
     }
 
     if (!hasChanges) {
-      console.log("⏸ No changes detected.");
       return;
     }
 
     if (row.dataset.id) {
       try {
-        console.log("🔄 Updating existing job:", row.dataset.id, data);
         await updateJob(row.dataset.id, data);
         lastSavedData = { ...data };
         updateAnalytics(getAllJobsFromDOM());
         renderMonthlyApplications(getAllJobsFromDOM());
         showNotification("Data updated successfully", "success");
         highlightDuplicateJobs();
-        console.log("Auto-saved (existing row).");
       } catch (err) {
         console.error("Auto-save (update) failed:", err);
         showNotification("Failed to update data", "error");
       }
     } else if (userId) {
       try {
-        console.log("🆕 Creating new job with data:", data);
         const docRef = await addJob(data, userId);
         row.dataset.id = docRef.id;
         lastSavedData = { ...data };
@@ -120,7 +116,6 @@ export function renderJobRow(
         showNotification("New job added", "info");
         highlightDuplicateJobs();
 
-        console.log("Auto-saved (new row).");
       } catch (err) {
         console.error("Auto-save (new row) failed:", err);
         showNotification("Failed to add new job", "error");
@@ -643,9 +638,6 @@ export function renderMonthlyApplications(jobs) {
       container.appendChild(separator);
     }
   });
-  console.log("📊 Monthly Analytics Sorted:", sorted);
-  console.log("🧾 Jobs received:", jobs);
-  console.log("📆 Raw Monthly Data:", data);
 }
 
 export function updateAnalytics(jobs) {
@@ -708,7 +700,6 @@ export function getAllJobsFromDOM() {
     jobs.push(job);
   });
 
-  console.log("📦 getAllJobsFromDOM():", jobs);
   return jobs;
 }
 
@@ -762,7 +753,6 @@ function showNotification(message, type = "success") {
   }, 3000);
 }
 function highlightDuplicateJobs() {
-  console.log("🔍 Running duplicate check...");
   const rows = Array.from(document.querySelectorAll("#job-table-body tr"));
 
   rows.forEach((row) => {

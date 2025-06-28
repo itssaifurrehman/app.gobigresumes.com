@@ -9,7 +9,8 @@ import {
   query,
   where,
   getDocs,
-  serverTimestamp
+  serverTimestamp,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 /**
@@ -54,11 +55,17 @@ export async function addJob(data, userId) {
 /**
  * Fetches all jobs for the logged-in user
  */
+
 export async function getUserJobs(userId) {
   const q = query(collection(db, "jobs"), where("userId", "==", userId));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
 }
+
+
 
 /**
  * Updates an existing job entry
