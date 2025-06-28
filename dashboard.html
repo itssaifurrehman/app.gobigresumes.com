@@ -4,102 +4,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Tracker | Dashboard</title>
+  <title>Dashboard | Go Big Resumes</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --primary: #004e50;
+      --secondary: #337173;
+      --tertiary: #ffffff;
+    }
+
+    .px-3 {
+      padding-right: 0 !important;
+    }
+  </style>
 </head>
 
-
-<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
-  <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center sticky top-0 z-30">
-    <h1 class="text-xl font-bold text-indigo-600 tracking-tight">🎯 Go Big Resumes | Job Tracker</h1>
-    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold text-sm">
+<body class="bg-[#F8FAFC] text-gray-800 font-sans min-h-screen">
+  <nav
+    class="bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center shadow">
+        <img src="./BGR.png" alt="Logo" class="w-6 h-6 object-contain" />
+      </div>
+      <span class="text-lg font-bold text-[var(--primary)]">Go Big Resumes</span>
+    </div>
+    <button id="logout-btn"
+      class="bg-[var(--secondary)] hover:bg-[var(--primary)] text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
       Logout
     </button>
     <div id="notification-container" class="fixed top-20 right-4 z-50 flex flex-col gap-3 items-end max-w-sm w-full">
     </div>
-
   </nav>
 
-  <main class="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
-    <div id="welcome-message" class="text-2xl font-semibold text-gray-800"></div>
+  <main class="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+    <div id="welcome-message" class="text-xl sm:text-2xl font-semibold text-[var(--primary)]"></div>
 
-    <section id="analytics" class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-lg font-bold mb-4 text-indigo-700 flex items-center gap-2">📊 Job Application Analytics</h2>
+    <section class="bg-white shadow-md rounded-lg p-6 space-y-4">
+      <h2 class="text-lg font-bold text-[var(--primary)]">
+        📊 Job Application Analytics
+      </h2>
 
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-800" id="analytics-section">
-        <div class="flex items-center gap-2 bg-indigo-50 border-l-4 border-indigo-500 rounded-md p-3">
-          📋 <span class="font-semibold">Total:</span> <span id="total-jobs">0</span>
+      <div id="analytics-section" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+        <div class="bg-[var(--secondary)] border-l-4 border-[var(--primary)] p-3 rounded-md flex items-center gap-2">
+          📋 <span class="font-semibold">Total:</span>
+          <span id="total-jobs">0</span>
         </div>
-        <div class="flex items-center gap-2 bg-blue-50 border-l-4 border-blue-500 rounded-md p-3">
-          📨 <span class="font-semibold">Applied:</span> <span id="applied-count">0</span>
+        <div class="bg-blue-100 border-l-4 border-blue-500 p-3 rounded-md flex items-center gap-2">
+          📨 <span class="font-semibold">Applied:</span>
+          <span id="applied-count">0</span>
         </div>
-        <div class="flex items-center gap-2 bg-yellow-50 border-l-4 border-yellow-500 rounded-md p-3">
-          🎯 <span class="font-semibold">Interviewing:</span> <span id="interviewing-count">0</span>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded-md flex items-center gap-2">
+          🎯 <span class="font-semibold">Interviewing:</span>
+          <span id="interviewing-count">0</span>
         </div>
-        <div class="flex items-center gap-2 bg-green-50 border-l-4 border-green-500 rounded-md p-3">
-          🏆 <span class="font-semibold">Offered:</span> <span id="offered-count">0</span>
+        <div class="bg-green-100 border-l-4 border-green-500 p-3 rounded-md flex items-center gap-2">
+          🏆 <span class="font-semibold">Offered:</span>
+          <span id="offered-count">0</span>
         </div>
-        <div class="flex items-center gap-2 bg-orange-50 border-l-4 border-yellow-600 rounded-md p-3">
-          ⚠️ <span class="font-semibold text-yellow-700">Follow-Ups:</span> <span id="followup-due">0</span>
+        <div class="bg-orange-100 border-l-4 border-orange-500 p-3 rounded-md flex items-center gap-2">
+          ⚠️ <span class="font-semibold">Follow-Ups:</span>
+          <span id="followup-due">0</span>
         </div>
-
-        <div class="flex items-center gap-2 bg-red-50 border-l-4 border-red-500 rounded-md p-3">
-          ❌ <span class="font-semibold text-red-600">Rejected:</span> <span id="rejected-count">0</span>
+        <div class="bg-red-100 border-l-4 border-red-500 p-3 rounded-md flex items-center gap-2">
+          ❌ <span class="font-semibold">Rejected:</span>
+          <span id="rejected-count">0</span>
         </div>
-        <div class="flex items-center gap-2 bg-gray-100 border-l-4 border-gray-500 rounded-md p-3">
-          👻 <span class="font-semibold text-gray-600">Ghosted:</span> <span id="ghosted-count">0</span>
+        <div class="bg-gray-200 border-l-4 border-gray-600 p-3 rounded-md flex items-center gap-2">
+          👻 <span class="font-semibold">Ghosted:</span>
+          <span id="ghosted-count">0</span>
         </div>
       </div>
 
-      <div class="mt-6">
-        <h3 class="font-semibold text-gray-800 mb-2 text-base">📅 Monthly Applications</h3>
-        <div id="monthly-applications" class="flex flex-wrap gap-2 text-sm text-gray-800"></div>
-
-
-      </div>
+      <div>
+        <h3 class="font-semibold mt-4 mb-2 text-base">
+          📅 Monthly Applications
+        </h3>
+        <div id="monthly-applications" class="flex flex-wrap gap-2 text-sm text-gray-700"></div>
       </div>
     </section>
 
-    <div class="text-right space-x-3">
+    <div class="flex flex-wrap justify-end gap-3">
       <button id="add-row"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-medium shadow-sm transition">
+        class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-5 py-2 rounded-md font-medium shadow-sm transition-all">
         ➕ Add Row
       </button>
       <button id="export-csv"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-medium shadow-sm transition">
+        class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-5 py-2 rounded-md font-medium shadow-sm transition-all">
         📤 Export to CSV
       </button>
     </div>
 
-    <div class="w-full overflow-x-auto border border-gray-200 rounded-md shadow-sm">
-      <table class="table-fixed w-full text-sm text-gray-800">
-        <thead class="bg-indigo-100 text-indigo-800 text-xs font-semibold uppercase">
+    <div class="w-full overflow-x-auto bg-white border rounded-lg shadow-sm">
+      <table class="min-w-[1000px] w-full text-sm">
+        <thead class="bg-[var(--secondary)] text-white uppercase text-xs tracking-wider">
           <tr>
-            <th class="px-3 py-2 w-[50px] text-left">No.</th>
-            <th class="px-3 py-2 w-[140px] text-left">Company</th>
-            <th class="px-3 py-2 w-[140px] text-left">Title</th>
-            <th class="px-3 py-2 w-[140px] text-left">Job Link</th>
-            <th class="px-3 py-2 w-[140px] text-left">Hiring Manager</th>
-            <th class="px-3 py-2 w-[140px] text-left">Status</th>
-            <th class="px-3 py-2 w-[160px] text-left">Application Date</th>
-            <th class="px-3 py-2 w-[160px] text-left">Response Date</th>
-            <th class="px-3 py-2 w-[160px] text-left">When to Follow Up</th>
-            <th class="px-3 py-2 w-[160px] text-left">Follow-Up Status</th>
-            <th class="px-3 py-2 w-[140px] text-left">Referral</th>
-            <th class="px-3 py-2 w-[80px] text-left">Action</th>
+            <th class="px-3 py-2 text-center">No.</th>
+            <th class="px-3 py-2 text-center">Company</th>
+            <th class="px-3 py-2 text-center">Title</th>
+            <th class="px-3 py-2 text-center">No. of Applicants</th>
+            <th class="px-3 py-2 text-center">Job Link</th>
+            <th class="px-3 py-2 text-center">Hiring Manager</th>
+            <th class="px-3 py-2 text-center">Status</th>
+            <th class="px-3 py-2 text-center">Application Date</th>
+            <th class="px-3 py-2 text-center">Response Date</th>
+            <th class="px-3 py-2 text-center">When to Follow Up</th>
+            <th class="px-3 py-2 text-center">Follow-Up Status</th>
+            <th class="px-3 py-2 text-center">Referral</th>
+            <th class="px-3 py-2 text-center">Action</th>
           </tr>
         </thead>
-        <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white">
-        </tbody>
+        <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
       </table>
     </div>
   </main>
 
   <div id="delete-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white border-l-8 border-red-600 rounded-lg shadow-2xl w-full max-w-md p-6">
-      <h2 class="text-xl font-bold text-red-700 mb-3 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24"
+    <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl border-l-4 border-[var(--primary)]">
+      <h2 class="text-xl font-bold text-[var(--primary)] flex items-center gap-2 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[var(--primary)]" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v2H9V4a1 1 0 011-1z" />
@@ -107,22 +129,22 @@
         Confirm Deletion
       </h2>
       <p class="text-sm text-gray-600 mb-6">
-        Are you sure you want to delete this job entry? This action cannot be undone.
+        Are you sure you want to delete this job entry? This action cannot be
+        undone.
       </p>
-      <div class="flex justify-end space-x-3">
-        <button id="cancel-delete" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md font-medium">
+      <div class="flex justify-end gap-2">
+        <button id="cancel-delete" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md">
           Cancel
         </button>
-        <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md font-semibold">
+        <button id="confirm-delete"
+          class="bg-[var(--primary)] text-white hover:bg-[var(--secondary)] px-4 py-2 rounded-md font-semibold">
           Yes, Delete
         </button>
       </div>
     </div>
   </div>
 
-
   <script type="module" src="./app.js"></script>
 </body>
-
 
 </html>

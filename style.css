@@ -1,3 +1,10 @@
+    :root {
+      --primary: #004E50;
+      --secondary: #337173;
+      --tertiary: #ffffff;
+    }
+
+
 .notion-input {
         @apply w-full bg-transparent px-2 py-1 text-sm border-none focus:outline-none rounded text-gray-800;
       }
@@ -11,30 +18,23 @@
         opacity: 0.5;
       }
 
-      /* select.no-arrow {
-  appearance: none;
-  background: none;
-  border: none;
-  padding-right: 1rem;
-  background-image: none;
-} */
-
-/* select.no-arrow {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: transparent;
-  border: none;
-  background-image: none !important;
-  padding-right: 0.75rem; /* Optional spacing for visual balance */
-  font-weight: 500;
-  color: #374151; /* Tailwind gray-700 */
-  cursor: default;
-} */
- td,
+  td,
   th {
     max-width: 160px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  input[title]:hover {
+    cursor: help;
+  }
+
+    .duplicate-row {
+    background-color: #f3e8ff;
+    border-left: 4px solid #a855f7;
+  }
+  
+.px-3{
+  padding-right: 0 !important;
+}

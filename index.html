@@ -1,4 +1,3 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,15 +6,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Go Big Resumes | Job Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="./logo.png" />
+  <link rel="stylesheet" href="./style.css">
 </head>
 
-<body
-  class="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 min-h-screen flex items-center justify-center px-4">
-  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm text-center">
-    <h1 class="text-3xl font-bold text-gray-800 mb-3">🎯 Go Big Resumes | Job Tracker</h1>
-    <p class="text-gray-500 mb-6">Track your job applications effortlessly.</p>
+<body class="min-h-screen bg-gradient-to-br from-[#004E50] via-[#337173] to-[#004E50] flex items-center justify-center px-4">
+
+  <div class="bg-white shadow-2xl rounded-xl max-w-sm w-full p-8 text-center border border-gray-100">
+    <div class="flex items-center justify-center gap-2 mb-6">
+<img src="./BGR.png" alt="Logo" class="w-10 h-10 rounded-full bg-[#004E50] border-2 border-[#004E50] shadow-md" />
+      <span class="text-xl font-bold text-[#004E50] tracking-wide">Go Big Resumes</span>
+    </div>
+
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">Job Tracker</h1>
+    <p class="text-gray-500 text-sm mb-6">Track your job applications effortlessly</p>
+
     <button id="login-btn"
-      class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg w-full transition">
+      class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-white font-medium text-sm bg-[#337173] hover:bg-[#004E50] transition duration-200 shadow-md">
+      <svg class="w-5 h-5" viewBox="0 0 48 48">
+        <path fill="#FFC107"
+          d="M43.6 20.5H42V20H24v8h11.3C33.3 32.5 29.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 6 .9 8.2 2.7l6.1-6.1C34.4 5.6 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-3.5z" />
+        <path fill="#FF3D00"
+          d="M6.3 14.6l6.6 4.8C14.3 16 18.8 12 24 12c3.1 0 6 .9 8.2 2.7l6.1-6.1C34.4 5.6 29.5 4 24 4 16.1 4 9.1 8.9 6.3 14.6z" />
+        <path fill="#4CAF50"
+          d="M24 44c5.1 0 9.8-1.9 13.3-5l-6.2-5.3C29.5 34.7 26.8 36 24 36c-5.1 0-9.3-3.4-10.8-8.1l-6.6 5.1C9.1 39.1 16.1 44 24 44z" />
+        <path fill="#1976D2"
+          d="M43.6 20.5H42V20H24v8h11.3c-1.3 3.4-4.1 6.1-7.3 7.5l.1.1 6.2 5.3C36.2 37.5 40 31.3 40 24c0-1.3-.1-2.7-.4-3.5z" />
+      </svg>
       Sign in with Google
     </button>
   </div>

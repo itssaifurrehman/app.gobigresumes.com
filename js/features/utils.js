@@ -29,22 +29,24 @@ export function renderJobRow(
   row.appendChild(numberTd);
 
   const columnWidths = {
-    companyName: "w-[140px]",
+    companyName: "w-[160px]",
     title: "w-[140px]",
+    numberOfApplicants: "w-[60px]",
     jobLink: "w-[180px]",
-    hiringManager: "w-[160px]", // 👈 Add this
-    status: "w-[130px]",
-    applicationDate: "w-[130px]",
-    responseDate: "w-[130px]",
-    whenToFollowUp: "w-[130px]",
+    hiringManager: "w-[160px]",
+    status: "w-[100px]",
+    applicationDate: "w-[100px]",
+    responseDate: "w-[100px]",
+    whenToFollowUp: "w-[100px]",
     followUpStatus: "w-[150px]",
-    referral: "w-[100px]",
+    referral: "w-[90px]",
     action: "w-[80px]",
   };
 
   const fields = [
     "companyName",
     "title",
+    "numberOfApplicants",
     "jobLink",
     "hiringManager",
     "status",
@@ -99,6 +101,7 @@ export function renderJobRow(
         updateAnalytics(getAllJobsFromDOM());
         renderMonthlyApplications(getAllJobsFromDOM());
         showNotification("Data updated successfully", "success");
+        highlightDuplicateJobs();
         console.log("Auto-saved (existing row).");
       } catch (err) {
         console.error("Auto-save (update) failed:", err);
@@ -115,6 +118,7 @@ export function renderJobRow(
         updateAnalytics(getAllJobsFromDOM());
         renderMonthlyApplications(getAllJobsFromDOM());
         showNotification("New job added", "info");
+        highlightDuplicateJobs();
 
         console.log("Auto-saved (new row).");
       } catch (err) {
@@ -139,6 +143,11 @@ export function renderJobRow(
         select.className += " " + (columnWidths[field] || "");
         select.dataset.field = field;
         select.value = job[field] || "";
+        if (columnWidths[field]) {
+          select.classList.add(columnWidths[field]);
+        } else {
+          select.classList.add("w-full");
+        }
 
         const options =
           field === "status"
@@ -191,7 +200,7 @@ export function renderJobRow(
                 const fup = new Date();
                 fup.setDate(today.getDate() + 3);
                 cellRefs.followUpDate.value = fup.toISOString().split("T")[0];
-                highlightFollowUpDateInput(cellRefs.followUpDate); // 👈 here
+                highlightFollowUpDateInput(cellRefs.followUpDate);
               }
             }
           });
@@ -209,7 +218,6 @@ export function renderJobRow(
               }
             } else if (select.value === "2nd Follow Up Sent") {
               if (cellRefs.followUpDate) {
-                // cellRefs.followUpDate.value = "No Response";
                 cellRefs.followUpDate.classList.remove(
                   "border-red-500",
                   "text-red-600",
@@ -233,7 +241,6 @@ export function renderJobRow(
         input.className =
           "w-full px-1 py-1 bg-transparent text-sm focus:outline-none text-gray-800";
 
-        // ✅ Only apply highlight to followUpDate
         if (field === "followUpDate" && input.value) {
           highlightFollowUpDateInput(input);
         }
@@ -280,6 +287,11 @@ export function renderJobRow(
           "w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500";
         input.dataset.field = field;
         cellRefs[field] = input;
+        if (columnWidths[field]) {
+          input.classList.add(columnWidths[field]);
+        } else {
+          input.classList.add("w-full");
+        }
 
         const link = document.createElement("a");
         link.href = input.value.trim();
@@ -322,6 +334,37 @@ export function renderJobRow(
         wrapper.appendChild(input);
         wrapper.appendChild(link);
         td.appendChild(wrapper);
+      } else if (field === "numberOfApplicants") {
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.value = job[field] || "";
+        input.className =
+          "w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+        input.dataset.field = field;
+
+        if (columnWidths[field]) {
+          input.classList.add(columnWidths[field]);
+        } else {
+          input.classList.add("w-full");
+        }
+
+        highlightApplicantsInput(input);
+
+        input.addEventListener("input", () => {
+          highlightApplicantsInput(input);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+        });
+
+        input.addEventListener("change", () => {
+          highlightApplicantsInput(input);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+        });
+
+        cellRefs[field] = input;
+        td.appendChild(input);
       } else {
         const input = document.createElement("input");
         input.type = "text";
@@ -329,16 +372,38 @@ export function renderJobRow(
         input.className =
           "w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500";
         cellRefs[field] = input;
-        td.appendChild(input);
-        input.addEventListener("input", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
-        });
 
-        input.addEventListener("change", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
-        });
+        if (columnWidths[field]) {
+          input.classList.add(columnWidths[field]);
+        } else {
+          input.classList.add("w-full");
+        }
+
+        td.appendChild(input);
+
+        if (["companyName", "title"].includes(field)) {
+          input.addEventListener("input", () => {
+            highlightDuplicateJobs();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          });
+
+          input.addEventListener("change", () => {
+            highlightDuplicateJobs();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          });
+        } else {
+          input.addEventListener("input", () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          });
+
+          input.addEventListener("change", () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          });
+        }
       }
     }
 
@@ -349,6 +414,26 @@ export function renderJobRow(
         input.classList.add("border-red-500", "text-red-600", "font-bold");
       } else {
         input.classList.remove("border-red-500", "text-red-600", "font-bold");
+      }
+    }
+    function highlightApplicantsInput(input) {
+      const value = parseInt(input.value?.trim?.(), 10);
+
+      input.classList.remove(
+        "border-red-500",
+        "border-green-500",
+        "border-gray-300"
+      );
+      input.removeAttribute("title");
+
+      if (!isNaN(value)) {
+        if (value <= 25) {
+          input.classList.add("border", "border-green-500");
+          input.title = "🟢 Less competition — good opportunity";
+        } else {
+          input.classList.add("border", "border-red-500");
+          input.title = "🟡 Too many applicants — low chance";
+        }
       }
     }
   });
@@ -418,6 +503,7 @@ export function renderJobRow(
 
   actionTd.appendChild(deleteBtn);
   row.appendChild(actionTd);
+  highlightDuplicateJobs();
 
   return row;
 }
@@ -631,18 +717,18 @@ function showNotification(message, type = "success") {
 
   const colors = {
     success: {
-      bg: "bg-green-50/80 backdrop-blur-sm",
-      text: "text-green-800",
+      bg: "bg-[#d4f7f4] border-[#004E50]",
+      text: "text-[#004E50]",
       icon: "✅",
     },
     error: {
-      bg: "bg-red-50/80 backdrop-blur-sm",
-      text: "text-red-800",
+      bg: "bg-[#ffecec] border-[#d9534f]",
+      text: "text-[#a94442]",
       icon: "❌",
     },
     info: {
-      bg: "bg-blue-50/80 backdrop-blur-sm",
-      text: "text-blue-800",
+      bg: "bg-[#e8f0f0] border-[#337173]",
+      text: "text-[#337173]",
       icon: "ℹ️",
     },
   };
@@ -651,16 +737,16 @@ function showNotification(message, type = "success") {
 
   const toast = document.createElement("div");
   toast.className = `
-    flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg
-    ${bg} ${text}
-    transform transition-all duration-300 translate-x-8 opacity-0
-    border border-transparent
-  `;
+  flex items-center gap-3 px-4 py-3 rounded-lg border shadow-xl
+  ${bg} ${text}
+  transform transition-all duration-300 translate-x-8 opacity-0
+  font-medium text-sm backdrop-blur-md
+`;
 
   toast.innerHTML = `
-    <span class="text-xl">${icon}</span>
-    <span class="text-sm font-medium">${message}</span>
-  `;
+  <span class="text-lg">${icon}</span>
+  <span>${message}</span>
+`;
 
   container.appendChild(toast);
 
@@ -674,4 +760,83 @@ function showNotification(message, type = "success") {
     toast.classList.add("translate-x-8", "opacity-0");
     setTimeout(() => toast.remove(), 400);
   }, 3000);
+}
+function highlightDuplicateJobs() {
+  console.log("🔍 Running duplicate check...");
+  const rows = Array.from(document.querySelectorAll("#job-table-body tr"));
+
+  rows.forEach((row) => {
+    row.querySelectorAll("td").forEach((td) => {
+      td.classList.remove("bg-purple-100", "ring-1", "ring-purple-300");
+    });
+  });
+
+  for (let i = 0; i < rows.length; i++) {
+    const rowA = rows[i];
+    const companyA =
+      rowA.querySelector('[data-field="companyName"]')?.value?.toLowerCase() ||
+      "";
+    const titleA =
+      rowA.querySelector('[data-field="title"]')?.value?.toLowerCase() || "";
+
+    for (let j = i + 1; j < rows.length; j++) {
+      const rowB = rows[j];
+      const companyB =
+        rowB
+          .querySelector('[data-field="companyName"]')
+          ?.value?.toLowerCase() || "";
+      const titleB =
+        rowB.querySelector('[data-field="title"]')?.value?.toLowerCase() || "";
+
+      const isCompanySimilar = getSimilarity(companyA, companyB) >= 0.75;
+      const isTitleSimilar = getSimilarity(titleA, titleB) >= 0.75;
+
+      if (isCompanySimilar && isTitleSimilar) {
+        [rowA, rowB].forEach((row) => {
+          row.querySelectorAll("td").forEach((td) => {
+            td.classList.add("bg-purple-100", "ring-1", "ring-purple-300");
+          });
+        });
+      }
+    }
+  }
+}
+
+function getSimilarity(str1, str2) {
+  if (!str1 || !str2) return 0;
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  const longerLength = longer.length;
+
+  if (longerLength === 0) return 1.0;
+
+  return (
+    (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+  );
+}
+
+function editDistance(s1, s2) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+
+  const costs = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) {
+        costs[j] = j;
+      } else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          }
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
 }
