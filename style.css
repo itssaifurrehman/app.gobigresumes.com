@@ -1,0 +1,40 @@
+.notion-input {
+        @apply w-full bg-transparent px-2 py-1 text-sm border-none focus:outline-none rounded text-gray-800;
+      }
+      .notion-input:focus {
+        @apply ring-1 ring-indigo-300 bg-white;
+      }
+      tr:hover .notion-input {
+        @apply bg-gray-50;
+      }
+      table input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0.5;
+      }
+
+      /* select.no-arrow {
+  appearance: none;
+  background: none;
+  border: none;
+  padding-right: 1rem;
+  background-image: none;
+} */
+
+/* select.no-arrow {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: none;
+  background-image: none !important;
+  padding-right: 0.75rem; /* Optional spacing for visual balance */
+  font-weight: 500;
+  color: #374151; /* Tailwind gray-700 */
+  cursor: default;
+} */
+ td,
+  th {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
