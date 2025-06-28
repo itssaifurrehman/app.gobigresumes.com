@@ -191,6 +191,7 @@ export function renderJobRow(
                 const fup = new Date();
                 fup.setDate(today.getDate() + 3);
                 cellRefs.followUpDate.value = fup.toISOString().split("T")[0];
+                highlightFollowUpDateInput(cellRefs.followUpDate); // 👈 here
               }
             }
           });
@@ -204,10 +205,16 @@ export function renderJobRow(
               fup.setDate(today.getDate() + 5);
               if (cellRefs.followUpDate) {
                 cellRefs.followUpDate.value = fup.toISOString().split("T")[0];
+                highlightFollowUpDateInput(cellRefs.followUpDate);
               }
             } else if (select.value === "2nd Follow Up Sent") {
               if (cellRefs.followUpDate) {
-                cellRefs.followUpDate.value = "No Response";
+                // cellRefs.followUpDate.value = "No Response";
+                cellRefs.followUpDate.classList.remove(
+                  "border-red-500",
+                  "text-red-600",
+                  "font-bold"
+                );
               }
             }
           });
@@ -225,27 +232,35 @@ export function renderJobRow(
 
         input.className =
           "w-full px-1 py-1 bg-transparent text-sm focus:outline-none text-gray-800";
+
+        // ✅ Only apply highlight to followUpDate
         if (field === "followUpDate" && input.value) {
-          const todayStr = new Date().toISOString().split("T")[0];
-          if (input.value < todayStr) {
-            input.classList.add("border-red-500", "text-red-600", "font-bold");
-          }
+          highlightFollowUpDateInput(input);
         }
 
         cellRefs[field] = input;
         td.appendChild(input);
+
         input.addEventListener("input", () => {
+          if (field === "followUpDate") {
+            highlightFollowUpDateInput(input);
+          }
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(autoSaveIfChanged, 3000);
         });
 
         input.addEventListener("change", () => {
+          if (field === "followUpDate") {
+            highlightFollowUpDateInput(input);
+          }
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(autoSaveIfChanged, 3000);
         });
+
         input.addEventListener("focus", () => {
           row.classList.add("active-row");
         });
+
         input.addEventListener("blur", () => {
           setTimeout(() => {
             const stillFocused = row.querySelector(":focus");
@@ -328,6 +343,14 @@ export function renderJobRow(
     }
 
     row.appendChild(td);
+    function highlightFollowUpDateInput(input) {
+      const todayStr = new Date().toISOString().split("T")[0];
+      if (input.value && input.value <= todayStr) {
+        input.classList.add("border-red-500", "text-red-600", "font-bold");
+      } else {
+        input.classList.remove("border-red-500", "text-red-600", "font-bold");
+      }
+    }
   });
 
   const actionTd = document.createElement("td");
