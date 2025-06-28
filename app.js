@@ -17,7 +17,12 @@ if (path.endsWith("index.html")) {
 }
 
 if (path.endsWith("dashboard.html")) {
-  onUserLoggedIn(async (user) => {
+  onUserLoggedIn(async (user, role) => {
+    if (role === "gbrsuperadmin") {
+      window.location.href = "admin-dashboard.html";
+      return;
+    }
+
     document.getElementById(
       "welcome-message"
     ).textContent = `Welcome, ${user.displayName}`;
@@ -26,7 +31,6 @@ if (path.endsWith("dashboard.html")) {
     const addRowBtn = document.getElementById("add-row");
 
     jobs = await getUserJobs(user.uid);
-
     tableBody.innerHTML = "";
 
     if (jobs.length > 0) {
@@ -48,7 +52,6 @@ if (path.endsWith("dashboard.html")) {
       updateRowNumbers();
       handleEmptyState();
       renderMonthlyApplications(jobs);
-
       updateAnalytics(jobs);
     });
   });
@@ -56,6 +59,9 @@ if (path.endsWith("dashboard.html")) {
   setupAuthHandlers();
 }
 
-document.getElementById("export-csv").addEventListener("click", () => {
-  exportJobsToCSV();
-});
+const exportBtn = document.getElementById("export-csv");
+if (exportBtn) {
+  exportBtn.addEventListener("click", () => {
+    exportJobsToCSV();
+  });
+}
