@@ -8,15 +8,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="./logo.png" />
   <link rel="stylesheet" href="./style.css">
-    <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js"></script>
 
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-[#004E50] via-[#337173] to-[#004E50] flex items-center justify-center px-4">
-
+<body
+  class="min-h-screen bg-gradient-to-br from-[#004E50] via-[#337173] to-[#004E50] flex items-center justify-center px-4 opacity-0 transition-opacity duration-500"
+  onload="document.body.classList.remove('opacity-0')">
   <div class="bg-white shadow-2xl rounded-xl max-w-sm w-full p-8 text-center border border-gray-100">
     <div class="flex items-center justify-center gap-2 mb-6">
-<img src="./BGR.png" alt="Logo" class="w-10 h-10 rounded-full bg-[#004E50] border-2 border-[#004E50] shadow-md" />
+      <img src="./BGR.png" alt="Logo" class="w-10 h-10 rounded-full bg-[#004E50] border-2 border-[#004E50] shadow-md" />
       <span class="text-xl font-bold text-[#004E50] tracking-wide">Go Big Resumes</span>
     </div>
 

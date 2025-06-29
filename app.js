@@ -7,20 +7,19 @@ import {
   updateAnalytics,
   renderMonthlyApplications,
 } from "./js/features/utils.js";
+
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
-const path = window.location.pathname;
 let jobs = null;
-console.log("Current path:", path);
 
-if (path === "/" || path.endsWith("index.html")) {
+if (document.getElementById("login-btn")) {
   setupAuthHandlers();
 }
 
-if (path.endsWith("dashboard.html")) {
+if (document.getElementById("job-table-body")) {
   onUserLoggedIn(async (user, role) => {
     if (role === "gbrsuperadmin") {
-      window.location.href = "admin-dashboard.html";
+      window.location.replace("admin-dashboard.html");
       return;
     }
 
@@ -52,8 +51,8 @@ if (path.endsWith("dashboard.html")) {
       if (firstInput) firstInput.focus();
       updateRowNumbers();
       handleEmptyState();
-      renderMonthlyApplications(jobs);
       updateAnalytics(jobs);
+      renderMonthlyApplications(jobs);
     });
   });
 
@@ -62,7 +61,5 @@ if (path.endsWith("dashboard.html")) {
 
 const exportBtn = document.getElementById("export-csv");
 if (exportBtn) {
-  exportBtn.addEventListener("click", () => {
-    exportJobsToCSV();
-  });
+  exportBtn.addEventListener("click", exportJobsToCSV);
 }

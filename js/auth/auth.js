@@ -25,12 +25,11 @@ export function setupAuthHandlers() {
         const userDocSnap = await getDoc(userDocRef);
 
         let role = "user";
-
         if (!userDocSnap.exists()) {
           await setDoc(userDocRef, {
             email: user.email,
             name: user.displayName,
-            role: role,
+            role,
             createdAt: new Date().toISOString(),
           });
         } else {
@@ -41,7 +40,11 @@ export function setupAuthHandlers() {
         localStorage.setItem("userRole", role);
         localStorage.setItem("userId", user.uid);
 
-        window.location.href = "dashboard.html";
+        if (role === "gbrsuperadmin") {
+          window.location.href = "admin-dashboard.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
       } catch (error) {
         console.error("❌ Login Error:", error);
         alert("Login failed. Please try again.");
