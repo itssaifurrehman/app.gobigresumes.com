@@ -35,11 +35,9 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // Set Admin Welcome Text
   const welcomeEl = document.getElementById("welcome-message");
   if (welcomeEl) welcomeEl.textContent = `Admin Dashboard`;
 
-  // Load and Select Admin User by Default
   await populateUserDropdown(user.uid);
 });
 
@@ -49,13 +47,11 @@ async function populateUserDropdown(adminUid) {
 
   if (!dropdown) return;
 
-  dropdown.innerHTML = ""; // Clear options
+  dropdown.innerHTML = "";
 
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
-    const name = data.name
-      ? `${data.name} (${data.email})`
-      : data.email;
+    const name = data.name ? `${data.name} (${data.email})` : data.email;
 
     const option = document.createElement("option");
     option.value = docSnap.id;
@@ -68,16 +64,16 @@ async function populateUserDropdown(adminUid) {
     dropdown.appendChild(option);
   });
 
-  // Load jobs for default (admin) user
   if (adminUid) {
     await loadJobsForUser(adminUid);
+    await showUserActivity(adminUid);
   }
 
-  // Enable switching to other users
   dropdown.addEventListener("change", () => {
     const selectedId = dropdown.value;
     if (selectedId) {
       loadJobsForUser(selectedId);
+      showUserActivity(selectedId);
     }
   });
 }
@@ -108,5 +104,26 @@ async function getJobsByUser(userId) {
   return jobSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-// Initialize logout and auth handlers
 setupAuthHandlers();
+
+async function showUserActivity(userId) {
+  const userDocSnap = await getDoc(doc(db, "users", userId));
+  if (userDocSnap.exists()) {
+    const data = userDocSnap.data();
+    const activityDiv = document.getElementById("user-activity");
+
+    const lastLogin = data.lastLogin
+      ? new Date(data.lastLogin).toLocaleString()
+      : "N/A";
+    const lastActivity = data.lastActivity
+      ? new Date(data.lastActivity).toLocaleString()
+      : "N/A";
+
+    activityDiv.innerHTML = `
+      <div class="text-sm text-gray-700">
+        <p><strong>🕒 Last Login:</strong> ${lastLogin}</p>
+        <p><strong>📌 Last Activity:</strong> ${lastActivity}</p>
+      </div>
+    `;
+  }
+}

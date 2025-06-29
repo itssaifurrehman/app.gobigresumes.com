@@ -12,6 +12,7 @@
       --secondary: #337173;
       --tertiary: #ffffff;
     }
+
     .px-3 {
       padding-right: 0 !important;
     }
@@ -22,11 +23,11 @@
   <nav
     class="bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-3">
-  <img src="./logo.png" alt="Logo" class="w-16 h-16" />
-        <span class="text-lg font-bold text-[var(--primary)]">Go Big Resumes</span>
+      <img src="./logo.png" alt="Logo" class="w-16 h-16" />
+      <span class="text-lg font-bold text-[var(--primary)]">Go Big Resumes</span>
 
     </div>
-    
+
     <button id="logout-btn"
       class="bg-[var(--secondary)] hover:bg-[var(--primary)] text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
       Logout
@@ -35,22 +36,24 @@
     </div>
   </nav>
 
-<div class="max-w-7xl mx-auto w-full px-4 mt-4">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <h2 id="welcome-message" class="text-2xl font-bold text-[var(--primary)]">
-      Admin Dashboard
-    </h2>
-    <div class="flex items-center gap-2">
-      <label for="user-select" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-        Select User:
-      </label>
-      <select id="user-select"
-        class="border border-gray-300 rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)]">
-        <option value="">Loading users...</option>
-      </select>
+  <div class="max-w-7xl mx-auto w-full px-4 mt-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <h2 id="welcome-message" class="text-2xl font-bold text-[var(--primary)]">
+        Admin Dashboard
+      </h2>
+      <div class="flex items-center gap-2">
+        <label for="user-select" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+          Select User:
+        </label>
+        <select id="user-select"
+          class="border border-gray-300 rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)]">
+          <option value="">Loading users...</option>
+        </select>
+        <div id="user-activity" class="mt-2 sm:mt-0 sm:ml-4"></div>
+
+      </div>
     </div>
   </div>
-</div>
 
 
 
@@ -113,27 +116,27 @@
     </div>
 
     <div class="w-full overflow-auto max-h-[80vh] bg-white border rounded-lg shadow-sm">
-  <table class="min-w-[1000px] w-full text-sm">
-    <thead class="bg-[var(--secondary)] text-white uppercase text-xs tracking-wider sticky top-0 z-10">
-      <tr>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">No.</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Company</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Title</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">No. of Applicants</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Job Link</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Hiring Manager</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Status</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Application Date</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Response Date</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">When to Follow Up</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Follow-Up Status</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Referral</th>
-        <th class="px-3 py-2 text-center bg-[var(--secondary)]">Action</th>
-      </tr>
-    </thead>
-    <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
-  </table>
-</div>
+      <table class="min-w-[1000px] w-full text-sm">
+        <thead class="bg-[var(--secondary)] text-white uppercase text-xs tracking-wider sticky top-0 z-10">
+          <tr>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">No.</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Company</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Title</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">No. of Applicants</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Job Link</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Hiring Manager</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Status</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Application Date</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Response Date</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">When to Follow Up</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Follow-Up Status</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Referral</th>
+            <th class="px-3 py-2 text-center bg-[var(--secondary)]">Action</th>
+          </tr>
+        </thead>
+        <tbody id="job-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
+      </table>
+    </div>
 
   </main>
 

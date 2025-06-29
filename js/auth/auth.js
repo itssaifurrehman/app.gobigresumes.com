@@ -31,10 +31,19 @@ export function setupAuthHandlers() {
             name: user.displayName,
             role,
             createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
           });
         } else {
           const data = userDocSnap.data();
           role = data.role || "user";
+
+          await setDoc(
+            userDocRef,
+            {
+              lastLogin: new Date().toISOString(),
+            },
+            { merge: true }
+          );
         }
 
         localStorage.setItem("userRole", role);
