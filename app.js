@@ -7,12 +7,13 @@ import {
   updateAnalytics,
   renderMonthlyApplications,
 } from "./js/features/utils.js";
+
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
-const path = window.location.pathname;
+const path = window.location.pathname.replace(/\/$/, "");
 let jobs = null;
 
-if (path === "/" || path.endsWith("index.html")) {
+if (path === "" || path === "/" || path.endsWith("index.html")) {
   setupAuthHandlers();
 }
 
@@ -38,6 +39,7 @@ if (path.endsWith("dashboard.html")) {
         const row = renderJobRow(job, false, user.uid, index + 1);
         tableBody.appendChild(row);
       });
+
       updateAnalytics(jobs);
       renderMonthlyApplications(jobs);
     }
@@ -47,12 +49,14 @@ if (path.endsWith("dashboard.html")) {
     addRowBtn.addEventListener("click", () => {
       const newRow = renderJobRow({}, true, user.uid);
       tableBody.appendChild(newRow);
+
       const firstInput = newRow.querySelector("input, select");
       if (firstInput) firstInput.focus();
+
       updateRowNumbers();
       handleEmptyState();
-      renderMonthlyApplications(jobs);
       updateAnalytics(jobs);
+      renderMonthlyApplications(jobs);
     });
   });
 
@@ -61,7 +65,5 @@ if (path.endsWith("dashboard.html")) {
 
 const exportBtn = document.getElementById("export-csv");
 if (exportBtn) {
-  exportBtn.addEventListener("click", () => {
-    exportJobsToCSV();
-  });
+  exportBtn.addEventListener("click", exportJobsToCSV);
 }
