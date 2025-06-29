@@ -10,10 +10,9 @@ import {
 
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
-const path = window.location.pathname.replace(/\/$/, ""); // normalize path
 let jobs = null;
 
-// ✅ Always initialize login handler if login button exists (safer than checking URL)
+// ✅ Login always works — checks for login button, not URL
 if (document.getElementById("login-btn")) {
   setupAuthHandlers();
 }
@@ -21,17 +20,12 @@ if (document.getElementById("login-btn")) {
 // ✅ Dashboard logic
 if (document.getElementById("job-table-body")) {
   onUserLoggedIn(async (user, role) => {
-    // Redirect to admin dashboard if role is gbrsuperadmin
     if (role === "gbrsuperadmin") {
       window.location.href = "admin-dashboard.html";
       return;
     }
 
-    // User Dashboard
-    const welcome = document.getElementById("welcome-message");
-    if (welcome) {
-      welcome.textContent = `Welcome, ${user.displayName}`;
-    }
+    document.getElementById("welcome-message").textContent = `Welcome, ${user.displayName}`;
 
     const tableBody = document.getElementById("job-table-body");
     const addRowBtn = document.getElementById("add-row");
@@ -55,10 +49,8 @@ if (document.getElementById("job-table-body")) {
       addRowBtn.addEventListener("click", () => {
         const newRow = renderJobRow({}, true, user.uid);
         tableBody.appendChild(newRow);
-
         const firstInput = newRow.querySelector("input, select");
         if (firstInput) firstInput.focus();
-
         updateRowNumbers();
         handleEmptyState();
         updateAnalytics(jobs);
@@ -67,11 +59,10 @@ if (document.getElementById("job-table-body")) {
     }
   });
 
-  // Set up logout button if present
-  setupAuthHandlers();
+  setupAuthHandlers(); // for logout button
 }
 
-// ✅ CSV Export (safe check)
+// ✅ Export CSV
 const exportBtn = document.getElementById("export-csv");
 if (exportBtn) {
   exportBtn.addEventListener("click", exportJobsToCSV);
