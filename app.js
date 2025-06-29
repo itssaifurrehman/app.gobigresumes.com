@@ -12,7 +12,7 @@ import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 const path = window.location.pathname;
 let jobs = null;
 
-if (path.endsWith("index.html")) {
+if (path === "/" || path.endsWith("index.html")) {
   setupAuthHandlers();
 }
 
