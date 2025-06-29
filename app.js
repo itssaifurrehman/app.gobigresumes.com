@@ -7,25 +7,26 @@ import {
   updateAnalytics,
   renderMonthlyApplications,
 } from "./js/features/utils.js";
-
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
+const path = window.location.pathname;
 let jobs = null;
+console.log("Current path:", path);
 
-// ✅ Login always works — checks for login button, not URL
-if (document.getElementById("login-btn")) {
+if (path === "/" || path.endsWith("index.html")) {
   setupAuthHandlers();
 }
 
-// ✅ Dashboard logic
-if (document.getElementById("job-table-body")) {
+if (path.endsWith("dashboard.html")) {
   onUserLoggedIn(async (user, role) => {
     if (role === "gbrsuperadmin") {
       window.location.href = "admin-dashboard.html";
       return;
     }
 
-    document.getElementById("welcome-message").textContent = `Welcome, ${user.displayName}`;
+    document.getElementById(
+      "welcome-message"
+    ).textContent = `Welcome, ${user.displayName}`;
 
     const tableBody = document.getElementById("job-table-body");
     const addRowBtn = document.getElementById("add-row");
@@ -38,32 +39,30 @@ if (document.getElementById("job-table-body")) {
         const row = renderJobRow(job, false, user.uid, index + 1);
         tableBody.appendChild(row);
       });
-
       updateAnalytics(jobs);
       renderMonthlyApplications(jobs);
     }
 
     handleEmptyState();
 
-    if (addRowBtn) {
-      addRowBtn.addEventListener("click", () => {
-        const newRow = renderJobRow({}, true, user.uid);
-        tableBody.appendChild(newRow);
-        const firstInput = newRow.querySelector("input, select");
-        if (firstInput) firstInput.focus();
-        updateRowNumbers();
-        handleEmptyState();
-        updateAnalytics(jobs);
-        renderMonthlyApplications(jobs);
-      });
-    }
+    addRowBtn.addEventListener("click", () => {
+      const newRow = renderJobRow({}, true, user.uid);
+      tableBody.appendChild(newRow);
+      const firstInput = newRow.querySelector("input, select");
+      if (firstInput) firstInput.focus();
+      updateRowNumbers();
+      handleEmptyState();
+      renderMonthlyApplications(jobs);
+      updateAnalytics(jobs);
+    });
   });
 
-  setupAuthHandlers(); // for logout button
+  setupAuthHandlers();
 }
 
-// ✅ Export CSV
 const exportBtn = document.getElementById("export-csv");
 if (exportBtn) {
-  exportBtn.addEventListener("click", exportJobsToCSV);
+  exportBtn.addEventListener("click", () => {
+    exportJobsToCSV();
+  });
 }
