@@ -10,25 +10,28 @@ import {
 
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
-
-const path = window.location.pathname.replace(/\/$/, "");
+const path = window.location.pathname.replace(/\/$/, ""); // normalize path
 let jobs = null;
 
-console.log("Current path:", path);
-if (path === "" || path === "/" || path.endsWith("index.html")) {
+// ✅ Always initialize login handler if login button exists (safer than checking URL)
+if (document.getElementById("login-btn")) {
   setupAuthHandlers();
 }
 
-if (path.endsWith("dashboard.html")) {
+// ✅ Dashboard logic
+if (document.getElementById("job-table-body")) {
   onUserLoggedIn(async (user, role) => {
+    // Redirect to admin dashboard if role is gbrsuperadmin
     if (role === "gbrsuperadmin") {
       window.location.href = "admin-dashboard.html";
       return;
     }
 
-    document.getElementById(
-      "welcome-message"
-    ).textContent = `Welcome, ${user.displayName}`;
+    // User Dashboard
+    const welcome = document.getElementById("welcome-message");
+    if (welcome) {
+      welcome.textContent = `Welcome, ${user.displayName}`;
+    }
 
     const tableBody = document.getElementById("job-table-body");
     const addRowBtn = document.getElementById("add-row");
@@ -48,23 +51,27 @@ if (path.endsWith("dashboard.html")) {
 
     handleEmptyState();
 
-    addRowBtn.addEventListener("click", () => {
-      const newRow = renderJobRow({}, true, user.uid);
-      tableBody.appendChild(newRow);
+    if (addRowBtn) {
+      addRowBtn.addEventListener("click", () => {
+        const newRow = renderJobRow({}, true, user.uid);
+        tableBody.appendChild(newRow);
 
-      const firstInput = newRow.querySelector("input, select");
-      if (firstInput) firstInput.focus();
+        const firstInput = newRow.querySelector("input, select");
+        if (firstInput) firstInput.focus();
 
-      updateRowNumbers();
-      handleEmptyState();
-      updateAnalytics(jobs);
-      renderMonthlyApplications(jobs);
-    });
+        updateRowNumbers();
+        handleEmptyState();
+        updateAnalytics(jobs);
+        renderMonthlyApplications(jobs);
+      });
+    }
   });
 
+  // Set up logout button if present
   setupAuthHandlers();
 }
 
+// ✅ CSV Export (safe check)
 const exportBtn = document.getElementById("export-csv");
 if (exportBtn) {
   exportBtn.addEventListener("click", exportJobsToCSV);
