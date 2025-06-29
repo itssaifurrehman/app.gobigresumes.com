@@ -11,11 +11,11 @@ import {
 import { onUserLoggedIn, setupAuthHandlers } from "./js/auth/auth.js";
 
 
-const path = window.location.pathname;
+const path = window.location.pathname.replace(/\/$/, "");
 let jobs = null;
 
 console.log("Current path:", path);
-if (path.endsWith("/") || path === "/" || path.endsWith("index.html")) {
+if (path === "" || path === "/" || path.endsWith("index.html")) {
   setupAuthHandlers();
 }
 
