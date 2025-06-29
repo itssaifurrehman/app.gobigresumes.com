@@ -18,8 +18,10 @@ export function setupAuthHandlers() {
   if (loginBtn) {
     loginBtn.addEventListener("click", async () => {
       try {
+        console.log("🔗 Initiating Google Sign-In...");
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
+        console.log("✅ User signed in:", user);
 
         const userDocRef = doc(db, "users", user.uid);
         const userDocSnap = await getDoc(userDocRef);
