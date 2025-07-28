@@ -40,7 +40,7 @@ export async function addJob(data, userId) {
     userId,
     applicationDate: data.applicationDate || formattedToday,
     followUpDate: data.followUpDate || followUpDate,
-    createdAt: serverTimestamp(),
+    createdAt: serverTimestamp(), 
   };
 
   return await addDoc(collection(db, "jobs"), job);
