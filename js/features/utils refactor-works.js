@@ -7,7 +7,7 @@ import { addJob, updateJob, deleteJob } from "../features/job-crud.js";
 // ✅ GLOBAL CONSTANTS
 // ================================
 const DEBOUNCE_DELAY = 1000;
-const debounceTimers = new Map();
+let debounceTimer;
 
 // Notification Colors
 const notificationColors = {
@@ -27,30 +27,6 @@ const notificationColors = {
     icon: "ℹ️",
   },
 };
-
-// ================================
-// ✅ GLOBAL HELPERS
-// ================================
-function attachAutoSaveListeners(el, row, field, autoSaveIfChanged) {
-  ["input", "change"].forEach((ev) => {
-    el.addEventListener(ev, () => {
-      const key = `${row.dataset.id || "new"}-${field}`;
-      clearTimeout(debounceTimers.get(key));
-      const timer = setTimeout(() => autoSaveIfChanged(), DEBOUNCE_DELAY);
-      debounceTimers.set(key, timer);
-    });
-  });
-
-  // Immediate save when field loses focus
-    el.addEventListener("blur", () => {
-    const lastValue = el.dataset.lastSavedValue ?? "";
-    const currentValue = el.value.trim();
-    if (lastValue !== currentValue) {
-      autoSaveIfChanged();
-    }
-  });
-    el.dataset.lastSavedValue = el.value.trim();
-}
 
 // ================================
 // ✅ RENDERING JOB ROW
@@ -97,6 +73,7 @@ export const renderJobRow = (
     action: "w-[80px]",
   };
 
+  // Fields
   const fields = [
     "companyName",
     "title",
@@ -111,6 +88,7 @@ export const renderJobRow = (
     "referral",
   ];
 
+  // Options
   const statusOptions = [
     "Pending",
     "Applied",
@@ -127,58 +105,48 @@ export const renderJobRow = (
   ];
   const referralOptions = ["Searching", "Referred", "No"];
 
-  // Auto-save function
- const autoSaveIfChanged = async () => {
-  const data = {};
-  let hasChanges = false;
+  /**
+   * Auto-save function with change detection
+   */
+  const autoSaveIfChanged = async () => {
+    const data = {};
+    let hasChanges = false;
 
-  // 🔹 Check if any field value changed
-  for (const field in cellRefs) {
-    const el = cellRefs[field];
-    if (!el) continue;
-    const newValue = el.value.trim();
-    data[field] = newValue;
-
-    if (lastSavedData[field] !== newValue) {
-      hasChanges = true;
-    }
-  }
-
-  // ✅ No changes → Don't save or show notification
-  if (!hasChanges) return;
-
-  try {
-    if (row.dataset.id) {
-      await updateJob(row.dataset.id, data);
-      showNotification("Data updated successfully", "success", row);
-    } else if (userId) {
-      const docRef = await addJob(data, userId);
-      row.dataset.id = docRef.id;
-      updateRowNumbers();
-      handleEmptyState();
-      showNotification("New job added", "info", row);
-    }
-
-    // ✅ Update last saved data
-    lastSavedData = { ...data };
-
-    // ✅ Store latest value in dataset to prevent false triggers on blur
     for (const field in cellRefs) {
       const el = cellRefs[field];
-      if (el) el.dataset.lastSavedValue = el.value.trim();
+      if (!el) continue;
+      const newValue = el.value.trim();
+      data[field] = newValue;
+
+      if (lastSavedData[field] !== newValue) hasChanges = true;
     }
 
-    // ✅ Update UI analytics
-    updateAnalytics(getAllJobsFromDOM());
-    renderMonthlyApplications(getAllJobsFromDOM());
-    highlightDuplicateJobs();
-  } catch (err) {
-    console.error("Auto-save failed:", err);
-    showNotification("Failed to save changes", "error", row);
-  }
-};
+    if (!hasChanges) return;
 
+    try {
+      if (row.dataset.id) {
+        await updateJob(row.dataset.id, data);
+        showNotification("Data updated successfully", "success");
+      } else if (userId) {
+        const docRef = await addJob(data, userId);
+        row.dataset.id = docRef.id;
+        updateRowNumbers();
+        handleEmptyState();
+        showNotification("New job added", "info");
+      }
+      lastSavedData = { ...data };
+      updateAnalytics(getAllJobsFromDOM());
+      renderMonthlyApplications(getAllJobsFromDOM());
+      highlightDuplicateJobs();
+    } catch (err) {
+      console.error("Auto-save failed:", err);
+      showNotification("Failed to save changes", "error");
+    }
+  };
 
+  /**
+   * Highlight Follow-Up Date Input
+   */
   const highlightFollowUpDateInput = (input) => {
     const todayStr = new Date().toISOString().split("T")[0];
     if (input.value && input.value <= todayStr) {
@@ -188,6 +156,9 @@ export const renderJobRow = (
     }
   };
 
+  /**
+   * Highlight Applicants Input
+   */
   const highlightApplicantsInput = (input) => {
     const value = parseInt(input.value.trim(), 10);
     input.classList.remove(
@@ -208,7 +179,7 @@ export const renderJobRow = (
     }
   };
 
-  // Generate fields
+  // Generate Fields
   fields.forEach((field) => {
     const td = document.createElement("td");
     td.className = "px-3 py-2 text-sm align-top whitespace-normal break-words";
@@ -219,10 +190,10 @@ export const renderJobRow = (
       input.value = value;
       input.dataset.field = field;
       input.className = `
-        px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-800
-        focus:outline-none focus:ring-2 focus:ring-indigo-500
-        ${columnWidths[field] || "w-full"} ${classes}
-      `;
+    px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-800
+    focus:outline-none focus:ring-2 focus:ring-indigo-500
+    ${columnWidths[field] || "w-full"} ${classes}
+  `;
       return input;
     };
 
@@ -253,8 +224,23 @@ export const renderJobRow = (
 
       cellRefs[field] = select;
       td.appendChild(select);
-      attachAutoSaveListeners(select, row, field, autoSaveIfChanged);
+      ["input", "change"].forEach((ev) =>
+        select.addEventListener(ev, () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, DEBOUNCE_DELAY);
+        })
+      );
 
+      select.addEventListener("focus", () => row.classList.add("active-row"));
+      select.addEventListener("blur", () => {
+        setTimeout(
+          () =>
+            !row.querySelector(":focus") && row.classList.remove("active-row"),
+          50
+        );
+      });
+
+      // Auto-Set Dates
       if (field === "status") {
         select.addEventListener("change", () => {
           const today = new Date();
@@ -312,7 +298,21 @@ export const renderJobRow = (
 
       cellRefs[field] = input;
       td.appendChild(input);
-      attachAutoSaveListeners(input, row, field, autoSaveIfChanged);
+      ["input", "change"].forEach((ev) =>
+        input.addEventListener(ev, () => {
+          if (field === "followUpDate") highlightFollowUpDateInput(input);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+        })
+      );
+      input.addEventListener("focus", () => row.classList.add("active-row"));
+      input.addEventListener("blur", () =>
+        setTimeout(
+          () =>
+            !row.querySelector(":focus") && row.classList.remove("active-row"),
+          50
+        )
+      );
     }
 
     // Job Link
@@ -330,16 +330,28 @@ export const renderJobRow = (
         ? "inline"
         : "none";
 
-      input.addEventListener("input", () => {
-        const val = input.value.trim();
-        link.href = val;
-        link.style.display = val.startsWith("http") ? "inline" : "none";
-      });
+      ["input", "change"].forEach((ev) =>
+        input.addEventListener(ev, () => {
+          const val = input.value.trim();
+          link.href = val;
+          link.style.display = val.startsWith("http") ? "inline" : "none";
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+        })
+      );
+
+      input.addEventListener("focus", () => row.classList.add("active-row"));
+      input.addEventListener("blur", () =>
+        setTimeout(
+          () =>
+            !row.querySelector(":focus") && row.classList.remove("active-row"),
+          50
+        )
+      );
 
       wrapper.append(input, link);
       td.appendChild(wrapper);
       cellRefs[field] = input;
-      attachAutoSaveListeners(input, row, field, autoSaveIfChanged);
     }
 
     // Number of Applicants
@@ -348,27 +360,47 @@ export const renderJobRow = (
       input.min = "0";
       highlightApplicantsInput(input);
 
-      input.addEventListener("input", () => highlightApplicantsInput(input));
+      ["input", "change"].forEach((ev) =>
+        input.addEventListener(ev, () => {
+          highlightApplicantsInput(input);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+        })
+      );
+
       cellRefs[field] = input;
       td.appendChild(input);
-      attachAutoSaveListeners(input, row, field, autoSaveIfChanged);
     }
 
     // Regular Text Fields
     else {
       const input = createInput("text", job[field] || "");
       if (["companyName", "title"].includes(field)) {
-        input.addEventListener("input", () => highlightDuplicateJobs());
+        ["input", "change"].forEach((ev) =>
+          input.addEventListener(ev, () => {
+            highlightDuplicateJobs();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          })
+        );
+      } else {
+        ["input", "change"].forEach((ev) =>
+          input.addEventListener(ev, () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(autoSaveIfChanged, 3000);
+          })
+        );
       }
       cellRefs[field] = input;
       td.appendChild(input);
-      attachAutoSaveListeners(input, row, field, autoSaveIfChanged);
     }
 
     row.appendChild(td);
   });
 
-  // Delete Button
+  // ================================
+  // ✅ ACTION COLUMN (Delete Button)
+  // ================================
   const actionTd = document.createElement("td");
   actionTd.className = "px-5 py-3 text-center";
   const deleteBtn = document.createElement("button");
@@ -555,128 +587,165 @@ export const getAllJobsFromDOM = () =>
       const job = { id: tr.dataset.id };
       tr.querySelectorAll("input, select").forEach((el) => {
         const key = el.dataset.field || el.name;
-        if (key) job[key] = el.value;
+        if (key) job[key] = el.value.trim();
       });
       return job;
     });
 
 // ================================
-// ✅ DUPLICATE HIGHLIGHT
-// ================================
-export const highlightDuplicateJobs = () => {
-  const rows = document.querySelectorAll("#job-table-body tr");
-  const seen = new Map();
-
-  // Collect rows by normalized company+title
-  rows.forEach((row) => {
-    const companyInput = row.querySelector('input[data-field="companyName"]');
-    const titleInput = row.querySelector('input[data-field="title"]');
-
-    if (!companyInput || !titleInput) return;
-
-    const company = companyInput.value.trim().toLowerCase();
-    const title = titleInput.value.trim().toLowerCase();
-
-    if (company && title) {
-      const key = `${company}|${title}`;
-      if (!seen.has(key)) seen.set(key, []);
-      seen.get(key).push(row);
-    }
-  });
-
-  // Remove old highlights
-  rows.forEach((row) => {
-    row.querySelectorAll("td").forEach((td) =>
-      td.classList.remove("bg-yellow-100")
-    );
-  });
-
-  // Highlight duplicates
-  for (const group of seen.values()) {
-    if (group.length > 1) {
-      group.forEach((row) => {
-        const companyCell = row.querySelector('input[data-field="companyName"]')
-          ?.closest("td");
-        const titleCell = row.querySelector('input[data-field="title"]')
-          ?.closest("td");
-
-        if (companyCell) companyCell.classList.add("bg-yellow-100");
-        if (titleCell) titleCell.classList.add("bg-yellow-100");
-      });
-    }
-  }
-};
-
-
-// ================================
 // ✅ NOTIFICATIONS
 // ================================
-const showNotification = (message, type = "info", row = null) => {
+export const showNotification = (message, type = "success") => {
   const container = document.getElementById("notification-container");
   if (!container) return;
 
-  const color = notificationColors[type] || notificationColors.info;
-
-  let rowNumberText = "";
-  if (row) {
-    const numberCell = row.querySelector(".row-number");
-    if (numberCell) {
-      rowNumberText = ` (Row ${numberCell.textContent})`;
-    }
-  }
-
-  const note = document.createElement("div");
-  note.className = `
-    fixed top-5 right-5 flex items-center gap-2
-    px-4 py-2 rounded shadow-md border ${color.bg} ${color.text}
-    animate-fade-in-up z-50
+  const { bg, text, icon } =
+    notificationColors[type] || notificationColors.info;
+  const toast = document.createElement("div");
+  toast.className = `
+    flex items-center gap-3 px-4 py-3 rounded-lg border shadow-xl
+    ${bg} ${text}
+    transform transition-all duration-300 translate-x-8 opacity-0
+    font-medium text-sm backdrop-blur-md
   `;
-  note.innerHTML = `<span>${color.icon}</span> ${message}${rowNumberText}`;
-  container.appendChild(note);
+  toast.innerHTML = `<span class="text-lg">${icon}</span><span>${message}</span>`;
+
+  container.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.classList.replace("translate-x-8", "translate-x-0");
+    toast.classList.replace("opacity-0", "opacity-100");
+  });
 
   setTimeout(() => {
-    note.classList.add("animate-fade-out-down");
-    setTimeout(() => note.remove(), 300);
+    toast.classList.replace("translate-x-0", "translate-x-8");
+    toast.classList.replace("opacity-100", "opacity-0");
+    setTimeout(() => toast.remove(), 400);
   }, 3000);
 };
 
+// ================================
+// ✅ DUPLICATE HIGHLIGHTING
+// ================================
+export const highlightDuplicateJobs = () => {
+  const rows = Array.from(document.querySelectorAll("#job-table-body tr"));
+  rows.forEach((row) =>
+    row
+      .querySelectorAll("td")
+      .forEach((td) =>
+        td.classList.remove("bg-purple-100", "ring-1", "ring-purple-300")
+      )
+  );
+
+  rows.forEach((rowA, i) => {
+    const companyA =
+      rowA.querySelector('[data-field="companyName"]')?.value?.toLowerCase() ||
+      "";
+    const titleA =
+      rowA.querySelector('[data-field="title"]')?.value?.toLowerCase() || "";
+
+    rows.slice(i + 1).forEach((rowB) => {
+      const companyB =
+        rowB
+          .querySelector('[data-field="companyName"]')
+          ?.value?.toLowerCase() || "";
+      const titleB =
+        rowB.querySelector('[data-field="title"]')?.value?.toLowerCase() || "";
+
+      const isCompanySimilar = getSimilarity(companyA, companyB) >= 0.75;
+      const isTitleSimilar = getSimilarity(titleA, titleB) >= 0.75;
+
+      if (isCompanySimilar && isTitleSimilar) {
+        [rowA, rowB].forEach((row) =>
+          row
+            .querySelectorAll("td")
+            .forEach((td) =>
+              td.classList.add("bg-purple-100", "ring-1", "ring-purple-300")
+            )
+        );
+      }
+    });
+  });
+};
+
+const getSimilarity = (str1, str2) => {
+  if (!str1 || !str2) return 0;
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  const longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+  return (
+    (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+  );
+};
+
+const editDistance = (s1, s2) => {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  const costs = new Array(s2.length + 1).fill(0);
+
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) costs[j] = j;
+      else if (j > 0) {
+        let newValue = costs[j - 1];
+        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+          newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+        }
+        costs[j - 1] = lastValue;
+        lastValue = newValue;
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+};
 
 // ================================
-// ✅ DELETE MODAL
+// ✅ DELETE MODAL HANDLER
 // ================================
 const openDeleteModal = (row) => {
   const modal = document.getElementById("delete-modal");
-  const confirmBtn = document.getElementById("confirm-delete");
-  const cancelBtn = document.getElementById("cancel-delete");
+  if (!modal) return alert("❌ Delete modal not found.");
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  modal.dataset.targetRowId = row.dataset.id;
+  modal.dataset.targetRowIndex = [...row.parentNode.children].indexOf(row);
 
-  const closeModal = () => {
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-    confirmBtn.onclick = null;
-    cancelBtn.onclick = null;
-  };
+  if (!modal.dataset.listenerAttached) {
+    const confirmDelete = document.getElementById("confirm-delete");
+    const cancelDelete = document.getElementById("cancel-delete");
 
-  cancelBtn.onclick = closeModal;
+    confirmDelete.addEventListener("click", async () => {
+      const { targetRowId: rowId, targetRowIndex: rowIndex } = modal.dataset;
 
-  confirmBtn.onclick = async () => {
-    try {
-      await deleteJob(row.dataset.id);
-      const rowNumber = row.querySelector(".row-number")?.textContent;
-      row.remove();
-      updateRowNumbers();
-      handleEmptyState();
-      updateAnalytics(getAllJobsFromDOM());
-      renderMonthlyApplications(getAllJobsFromDOM());
-      highlightDuplicateJobs();
-      showNotification("Job deleted successfully", "success", row);
-    } catch (err) {
-      console.error("Failed to delete job:", err);
-      showNotification("Failed to delete job", "error", row);
-    }
-    closeModal();
-  };
+      if (rowId) {
+        try {
+          await deleteJob(rowId);
+          document
+            .getElementById("job-table-body")
+            .children[rowIndex]?.remove();
+          row.remove();
+          updateRowNumbers();
+          handleEmptyState();
+          updateAnalytics(getAllJobsFromDOM());
+          renderMonthlyApplications(getAllJobsFromDOM());
+        } catch (error) {
+          console.error("❌ Delete error:", error);
+          alert("❌ Failed to delete this job.");
+        }
+      }
+
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    });
+
+    cancelDelete.addEventListener("click", () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    });
+
+    modal.dataset.listenerAttached = "true";
+  }
 };
-
