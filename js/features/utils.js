@@ -423,13 +423,14 @@ export const updateRowNumbers = () => {
 // ✅ EXPORT CSV
 // ================================
 export const exportJobsToCSV = () => {
-  const rows = document.querySelectorAll("#job-table-body tr");
+  const rows = document.querySelectorAll("#job-table-body tr:not(#empty-row)");
   if (!rows.length) return alert("⚠️ No jobs to export.");
 
   const headers = [
     "No.",
     "Company Name",
     "Title",
+    "Number of Applicants",
     "Job Link",
     "Hiring Manager",
     "Status",
@@ -441,14 +442,39 @@ export const exportJobsToCSV = () => {
   ];
 
   const csvRows = [headers.join(",")];
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "NOT PRESENT";
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "NOT PRESENT";
+    return `${String(d.getDate()).padStart(2, "0")}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${d.getFullYear()}`;
+  };
+
   rows.forEach((tr, i) => {
-    const cols = tr.querySelectorAll("td");
-    const rowData = [];
-    for (let j = 1; j <= 10; j++) {
-      const input = cols[j]?.querySelector("input, select");
-      rowData.push(`"${input?.value.replace(/"/g, '""') || ""}"`);
-    }
-    csvRows.push(`${i + 1},${rowData.join(",")}`);
+    const getValue = (field) => {
+      const el = tr.querySelector(`[data-field="${field}"]`);
+      const val = el ? el.value.trim().replace(/"/g, '""') : "";
+      return val || "NOT PRESENT";
+    };
+
+    const rowData = [
+      i + 1,
+      getValue("companyName"),
+      getValue("title"),
+      getValue("numberOfApplicants"),
+      getValue("jobLink"), // ✅ raw URL or value (no hyperlink formula)
+      getValue("hiringManager"),
+      getValue("status"),
+      formatDate(getValue("applicationDate")),
+      formatDate(getValue("responseDate")),
+      formatDate(getValue("followUpDate")),
+      getValue("followUpStatus"),
+      getValue("referral"),
+    ];
+
+    csvRows.push(rowData.map((val) => `"${val}"`).join(","));
   });
 
   const csvContent = csvRows.join("\n");
@@ -457,9 +483,13 @@ export const exportJobsToCSV = () => {
   const a = document.createElement("a");
   a.href = url;
   a.download = `job_applications_${new Date().toISOString().split("T")[0]}.csv`;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+
 
 // ================================
 // ✅ ANALYTICS & STATS
